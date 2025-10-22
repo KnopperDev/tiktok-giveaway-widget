@@ -14,6 +14,10 @@ export default function Dashboard() {
     likeThreshold: 10,
   });
 
+  const [editingConfig, setEditingConfig] = useState(config);
+  const [tiktokUsername, setTiktokUsername] = useState(""); // for overlay link
+  const [showOverlayLink, setShowOverlayLink] = useState(false);
+
   useEffect(() => {
     if (!socket) return;
 
@@ -21,7 +25,7 @@ export default function Dashboard() {
 
     socket.on("giveaway-state", ({ active, participants: p, winner: w, config: c }) => {
       setActive(active);
-      setParticipants(p);
+      setParticipants(p || []);
       setWinner(w);
       if (c) setConfig(c);
     });
@@ -41,7 +45,6 @@ export default function Dashboard() {
       setParticipants([]);
       setWinner(null);
     });
-
     socket.on("giveaway-config-updated", (c) => setConfig(c));
 
     return () => {
@@ -54,10 +57,6 @@ export default function Dashboard() {
     };
   }, [socket]);
 
-  // Local editing state so we don't immediately push changes until user clicks Save
-  const [editingConfig, setEditingConfig] = useState(config);
-
-  // Sync editingConfig when main config updates from server
   useEffect(() => setEditingConfig(config), [config]);
 
   if (!socket) return <p>Connecting...</p>;
@@ -69,6 +68,30 @@ export default function Dashboard() {
   };
 
   const cancelEdit = () => setEditingConfig(config);
+
+  const overlayLink =
+    tiktokUsername.trim() !== ""
+      ? `${window.location.origin}/overlay?username=${encodeURIComponent(tiktokUsername.trim())}`
+      : "";
+
+  const generateOverlayLink = () => {
+    if (tiktokUsername.trim() === "") {
+      alert("⚠️ Please enter your TikTok username first!");
+      return;
+    }
+    setShowOverlayLink(true);
+  };
+
+  const copyOverlayLink = () => {
+    if (!overlayLink) return;
+    navigator.clipboard.writeText(overlayLink);
+    alert("✅ Overlay link copied! You can now paste it into OBS or TikTok Live Studio.");
+  };
+
+  const testOverlay = () => {
+    if (!overlayLink) return;
+    window.open(overlayLink, "_blank");
+  };
 
   return (
     <div className="dashboard">
@@ -83,6 +106,40 @@ export default function Dashboard() {
         <button onClick={() => socket.emit("reset-giveaway")}>Reset</button>
       </div>
 
+      {/* Overlay link section */}
+      <div className="overlay-link-section">
+        <h2>🖥️ Overlay Link for OBS / TikTok Live Studio</h2>
+        <label>Enter your TikTok username:</label>
+        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+          <input
+            type="text"
+            value={tiktokUsername}
+            onChange={(e) => setTiktokUsername(e.target.value)}
+            placeholder="e.g. @streamer123 or streamer123"
+            style={{ flex: 1 }}
+          />
+          <button onClick={generateOverlayLink} className="generate-link-btn">
+            🔗 Generate Link
+          </button>
+        </div>
+        {showOverlayLink && overlayLink && (
+          <>
+            <input type="text" readOnly value={overlayLink} className="overlay-url-input" />
+            <div className="button-group">
+              <button onClick={copyOverlayLink} className="copy-link-btn">
+                📋 Copy Link
+              </button>
+              <button onClick={testOverlay} className="test-overlay-btn">
+                🎬 Test Overlay
+              </button>
+            </div>
+            <p className="help-text">
+              Paste this link into your streaming software as a <strong>Browser Source</strong>.
+            </p>
+          </>
+        )}
+      </div>
+
       {/* Configurable entry options */}
       <div className="config">
         <h2>Entry Options</h2>
@@ -92,7 +149,12 @@ export default function Dashboard() {
             <input
               type="checkbox"
               checked={editingConfig.enabled.commands}
-              onChange={(e) => setEditingConfig({ ...editingConfig, enabled: { ...editingConfig.enabled, commands: e.target.checked } })}
+              onChange={(e) =>
+                setEditingConfig({
+                  ...editingConfig,
+                  enabled: { ...editingConfig.enabled, commands: e.target.checked },
+                })
+              }
             />{" "}
             Enable Commands
           </label>
@@ -100,7 +162,12 @@ export default function Dashboard() {
             <input
               type="text"
               value={editingConfig.commands.join(", ")}
-              onChange={(e) => setEditingConfig({ ...editingConfig, commands: e.target.value.split(",").map((s) => s.trim()) })}
+              onChange={(e) =>
+                setEditingConfig({
+                  ...editingConfig,
+                  commands: e.target.value.split(",").map((s) => s.trim()),
+                })
+              }
             />
           )}
         </div>
@@ -110,7 +177,12 @@ export default function Dashboard() {
             <input
               type="checkbox"
               checked={editingConfig.enabled.gifts}
-              onChange={(e) => setEditingConfig({ ...editingConfig, enabled: { ...editingConfig.enabled, gifts: e.target.checked } })}
+              onChange={(e) =>
+                setEditingConfig({
+                  ...editingConfig,
+                  enabled: { ...editingConfig.enabled, gifts: e.target.checked },
+                })
+              }
             />{" "}
             Enable Gifts
           </label>
@@ -118,7 +190,12 @@ export default function Dashboard() {
             <input
               type="text"
               value={editingConfig.gifts.join(", ")}
-              onChange={(e) => setEditingConfig({ ...editingConfig, gifts: e.target.value.split(",").map((s) => s.trim()) })}
+              onChange={(e) =>
+                setEditingConfig({
+                  ...editingConfig,
+                  gifts: e.target.value.split(",").map((s) => s.trim()),
+                })
+              }
             />
           )}
         </div>
@@ -128,7 +205,12 @@ export default function Dashboard() {
             <input
               type="checkbox"
               checked={editingConfig.enabled.likes}
-              onChange={(e) => setEditingConfig({ ...editingConfig, enabled: { ...editingConfig.enabled, likes: e.target.checked } })}
+              onChange={(e) =>
+                setEditingConfig({
+                  ...editingConfig,
+                  enabled: { ...editingConfig.enabled, likes: e.target.checked },
+                })
+              }
             />{" "}
             Enable Likes
           </label>
@@ -137,16 +219,27 @@ export default function Dashboard() {
               type="number"
               value={editingConfig.likeThreshold}
               min={1}
-              onChange={(e) => setEditingConfig({ ...editingConfig, likeThreshold: parseInt(e.target.value) || 1 })}
+              onChange={(e) =>
+                setEditingConfig({
+                  ...editingConfig,
+                  likeThreshold: parseInt(e.target.value) || 1,
+                })
+              }
             />
           )}
         </div>
 
         <div className="config-actions">
-          <button className="save-btn" onClick={applyConfig}>💾 Save Config</button>
-          <button className="cancel-btn" onClick={cancelEdit}>↩️ Cancel</button>
+          <button className="save-btn" onClick={applyConfig}>
+            💾 Save Config
+          </button>
+          <button className="cancel-btn" onClick={cancelEdit}>
+            ↩️ Cancel
+          </button>
         </div>
       </div>
+
+      {/* Participants */}
       <div className="participants">
         <h2>Participants ({participants.length})</h2>
         <ul>
@@ -158,7 +251,7 @@ export default function Dashboard() {
 
       {winner && (
         <div className="winner">
-          🏆 Winner: {winner}
+          🏆 Winner: <strong>{winner}</strong>
         </div>
       )}
     </div>

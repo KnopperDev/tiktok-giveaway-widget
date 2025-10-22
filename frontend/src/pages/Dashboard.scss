@@ -266,6 +266,156 @@
   margin-top: 8px;
 }
 
+// Overlay link section
+.dashboard .overlay-link-section {
+  margin-top: 3rem;
+  padding: 2rem;
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-md);
+
+  h2 {
+    margin-bottom: 1rem;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  input[type="text"] {
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    color: var(--text-primary);
+    transition: var(--transition);
+    font-family: inherit;
+
+    &:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    &[readonly] {
+      background: rgba(255, 255, 255, 0.02);
+      cursor: default;
+    }
+  }
+
+  .generate-link-btn,
+  .copy-link-btn {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+    color: white;
+    white-space: nowrap;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    &:hover::before {
+      left: 100%;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  .generate-link-btn {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+
+    &:hover {
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    }
+  }
+
+  .overlay-url-input {
+    width: 100%;
+    margin-top: 0.5rem;
+    padding: 0.75rem;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: #fff;
+    font-family: "Courier New", monospace;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+
+    &:focus {
+      outline: none;
+      border-color: rgba(79, 172, 254, 0.5);
+      box-shadow: 0 0 10px rgba(79, 172, 254, 0.3);
+    }
+  }
+
+  .button-group {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+
+    button {
+      flex: 1;
+    }
+  }
+
+  .copy-link-btn {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+
+    &:hover {
+      box-shadow: 0 6px 20px rgba(79, 172, 254, 0.5);
+    }
+  }
+
+  .test-overlay-btn {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+
+    &:hover {
+      box-shadow: 0 6px 20px rgba(245, 87, 108, 0.5);
+    }
+  }
+
+  .help-text {
+    color: #aaa;
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0;
+  }
+
+  p {
+    margin: 0;
+  }
+}
+
 // Participants section
 .dashboard .participants {
   margin-top: 3rem;

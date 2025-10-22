@@ -3,17 +3,15 @@ const express = require("express");
 const http = require("http");
 const { Server } = require("socket.io");
 const { WebcastPushConnection } = require("tiktok-live-connector");
+const fs = require("fs");
+const path = require("path");
 
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
-const fs = require("fs");
-const path = require("path");
 
 const CONFIG_FILE = path.join(__dirname, "giveaway-config.json");
-
 const PORT = process.env.PORT || 3001;
-const TIKTOK_USERNAME = process.env.TIKTOK_USERNAME || "YOUR_TIKTOK_USERNAME";
 
 app.get("/", (req, res) => res.send("TikTok Giveaway Backend is running!"));
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
@@ -26,86 +24,113 @@ let currentWinner = null;
 // Configurable entry options
 let giveawayConfig = {
   enabled: { commands: true, gifts: true, likes: true },
-  commands: ["!join", "!giveaway", "me", "67"], // case-insensitive
-  gifts: ["Rose", "Diamond"], // names of gifts that count
-  likeThreshold: 10, // number of likes to enter
+  commands: ["!join", "!giveaway", "me"],
+  gifts: ["Rose"],
+  likeThreshold: 10,
 };
 
-// Try to load persisted config from disk if available
+// Try to load persisted config
 try {
   if (fs.existsSync(CONFIG_FILE)) {
     const raw = fs.readFileSync(CONFIG_FILE, "utf8");
     const parsed = JSON.parse(raw);
     giveawayConfig = { ...giveawayConfig, ...parsed };
-    console.log("Loaded giveaway config from file.");
+    console.log("✅ Loaded giveaway config from file.");
   }
 } catch (err) {
-  console.error("Failed to load giveaway config:", err.message);
+  console.error("⚠️ Failed to load config:", err.message);
 }
 
 // Track likes per user
 let userLikes = {};
 
-// Connect to TikTok
-const tiktokConnection = new WebcastPushConnection(TIKTOK_USERNAME);
-tiktokConnection.connect().then(() => {
-  console.log(`Connected to TikTok live stream of @${TIKTOK_USERNAME}!`);
-});
+// --- TIKTOK CONNECTION HANDLING ---
+let tiktokConnections = {}; // key: username, value: connection
 
-// --- LISTEN TO TIKTOK EVENTS ---
-tiktokConnection.on("chat", (chatData) => {
-  const message = chatData.comment.trim().toLowerCase();
-  const user = chatData.uniqueId;
+async function connectToTikTok(username) {
+  if (tiktokConnections[username]) {
+    console.log(`Already connected to @${username}`);
+    return tiktokConnections[username];
+  }
 
-  // Commands entry
-  if (giveawayActive && giveawayConfig.enabled.commands) {
-    if (giveawayConfig.commands.some((cmd) => cmd.toLowerCase() === message)) {
-      if (!participants.includes(user)) {
-        participants.push(user);
-        io.emit("participant-joined", user);
+  console.log(`🔗 Connecting to TikTok live of @${username}...`);
+  const connection = new WebcastPushConnection(username);
+
+  try {
+    await connection.connect();
+    console.log(`✅ Connected to TikTok live of @${username}`);
+  } catch (err) {
+    console.error(`❌ Failed to connect to @${username}:`, err.message);
+    return;
+  }
+
+  // Chat handler
+  connection.on("chat", (chatData) => {
+    const message = chatData.comment.trim().toLowerCase();
+    const user = chatData.uniqueId;
+
+    if (giveawayActive && giveawayConfig.enabled.commands) {
+      if (
+        giveawayConfig.commands.some((cmd) => cmd.toLowerCase() === message)
+      ) {
+        if (!participants.includes(user)) {
+          participants.push(user);
+          io.emit("participant-joined", user);
+        }
       }
     }
-  }
 
-  io.emit("new-chat", chatData);
-});
+    io.emit("new-chat", chatData);
+  });
 
-tiktokConnection.on("gift", (giftData) => {
-  const user = giftData.uniqueId;
-  const giftName = giftData.giftName;
+  // Gift handler
+  connection.on("gift", (giftData) => {
+    const user = giftData.uniqueId;
+    const giftName = giftData.giftName;
 
-  if (giveawayActive && giveawayConfig.enabled.gifts) {
-    if (giveawayConfig.gifts.includes(giftName)) {
-      if (!participants.includes(user)) {
-        participants.push(user);
-        io.emit("participant-joined", user);
+    if (giveawayActive && giveawayConfig.enabled.gifts) {
+      if (giveawayConfig.gifts.includes(giftName)) {
+        if (!participants.includes(user)) {
+          participants.push(user);
+          io.emit("participant-joined", user);
+        }
       }
     }
-  }
 
-  io.emit("new-gift", giftData);
-});
+    io.emit("new-gift", giftData);
+  });
 
-tiktokConnection.on("like", (likeData) => {
-  if (!giveawayActive || !giveawayConfig.enabled.likes) return;
+  // Like handler
+  connection.on("like", (likeData) => {
+    if (!giveawayActive || !giveawayConfig.enabled.likes) return;
 
-  const user = likeData.uniqueId;
-  const count = likeData.likeCount || 1;
+    const user = likeData.uniqueId;
+    const count = likeData.likeCount || 1;
 
-  userLikes[user] = (userLikes[user] || 0) + count;
+    userLikes[user] = (userLikes[user] || 0) + count;
 
-  if (
-    !participants.includes(user) &&
-    userLikes[user] >= giveawayConfig.likeThreshold
-  ) {
-    participants.push(user);
-    io.emit("participant-joined", user);
-  }
-});
+    if (
+      !participants.includes(user) &&
+      userLikes[user] >= giveawayConfig.likeThreshold
+    ) {
+      participants.push(user);
+      io.emit("participant-joined", user);
+    }
+  });
+
+  tiktokConnections[username] = connection;
+  return connection;
+}
 
 // --- SOCKET.IO EVENTS ---
 io.on("connection", (socket) => {
   console.log("Frontend connected:", socket.id);
+
+  // New event for overlay connection
+  socket.on("connect-tiktok", async (username) => {
+    const cleanName = username.replace(/^@/, "").trim();
+    await connectToTikTok(cleanName);
+  });
 
   // Send current state on connect
   socket.emit("giveaway-state", {
@@ -140,31 +165,15 @@ io.on("connection", (socket) => {
     io.emit("giveaway-reset");
   });
 
-  // Allow frontend to update config
-  // Old name for compatibility
-  socket.on("update-config", (newConfig) => {
-    giveawayConfig = { ...giveawayConfig, ...newConfig };
-    // persist
-    try {
-      fs.writeFileSync(CONFIG_FILE, JSON.stringify(giveawayConfig, null, 2));
-    } catch (err) {
-      console.error("Failed to persist giveaway config:", err.message);
-    }
-    io.emit("config-updated", giveawayConfig);
-    io.emit("giveaway-config-updated", giveawayConfig);
-  });
-
-  // Preferred frontend event name used by the app
+  // Config updates
   socket.on("update-giveaway-config", (newConfig) => {
     giveawayConfig = { ...giveawayConfig, ...newConfig };
-    // persist
     try {
       fs.writeFileSync(CONFIG_FILE, JSON.stringify(giveawayConfig, null, 2));
     } catch (err) {
-      console.error("Failed to persist giveaway config:", err.message);
+      console.error("⚠️ Failed to save config:", err.message);
     }
     io.emit("giveaway-config-updated", giveawayConfig);
-    io.emit("config-updated", giveawayConfig);
   });
 
   socket.on("request-giveaway-state", () => {

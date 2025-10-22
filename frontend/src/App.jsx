@@ -8,13 +8,13 @@ function App() {
     <Router>
       <div className="app-root">
         <nav>
-          <Link to="/overlay">Overlay</Link>
           <Link to="/dashboard">Dashboard</Link>
         </nav>
 
         <Routes>
           <Route path="/overlay" element={<Overlay />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/" element={<Dashboard />} />
         </Routes>
       </div>
     </Router>

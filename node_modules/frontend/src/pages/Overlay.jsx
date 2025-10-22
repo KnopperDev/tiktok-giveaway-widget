@@ -12,6 +12,28 @@ export default function Overlay() {
   const [giveawayActive, setGiveawayActive] = useState(false);
   const [mustSpin, setMustSpin] = useState(false);
   const [prizeNumber, setPrizeNumber] = useState(0);
+  const [username, setUsername] = useState(null);
+
+  // --- Read ?username= from URL ---
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const userParam = params.get("username");
+    console.log("🔍 URL search:", window.location.search);
+    console.log("🔍 Username param:", userParam);
+    if (userParam) {
+      const cleanUsername = userParam.replace(/^@/, "").trim();
+      console.log("✅ Setting username to:", cleanUsername);
+      setUsername(cleanUsername);
+    } else {
+      console.log("❌ No username parameter found");
+    }
+  }, []);
+
+  // --- Send username to backend to connect to TikTok stream ---
+  useEffect(() => {
+    if (!socket || !username) return;
+    socket.emit("connect-tiktok", username);
+  }, [socket, username]);
 
   useEffect(() => {
     if (!socket) return;
@@ -51,11 +73,9 @@ export default function Overlay() {
 
       const index = current.indexOf(username);
       if (index >= 0) {
-        setPrizeNumber(index);    // final index
-        setWinner(null);          // hide winner until spin finishes
-
-        // trigger spin on next frame to avoid backwards jump
-        requestAnimationFrame(() => setMustSpin(true));
+        setPrizeNumber(index); // final index
+        setWinner(null); // hide winner until spin finishes
+        requestAnimationFrame(() => setMustSpin(true)); // spin forward only
       } else {
         setWinner(username);
       }
@@ -79,6 +99,17 @@ export default function Overlay() {
   }, [socket]);
 
   if (!socket) return <p>Connecting...</p>;
+  if (!username)
+    return (
+      <div className="overlay-root">
+        <h1>⚠️ Missing Username</h1>
+        <p>
+          No <code>?username=</code> parameter detected.
+          Example link:
+          <code>{window.location.origin}/overlay?username=mytiktokname</code>
+        </p>
+      </div>
+    );
 
   const wheelData =
     participants.length > 0
@@ -88,7 +119,11 @@ export default function Overlay() {
   return (
     <div className="overlay-root">
       <h1>Giveaway Wheel</h1>
-      {giveawayActive ? <p>Giveaway is live! Viewers type !join to enter.</p> : <p>Waiting for giveaway to start...</p>}
+      <p>
+        {giveawayActive
+          ? `🎉 Giveaway is live for @${username}! Type !join or send a gift to enter.`
+          : `Waiting for giveaway to start on @${username}'s stream...`}
+      </p>
 
       <div className="overlay-wheel">
         <div className="wheel-decoration top-left">✨</div>
@@ -122,10 +157,9 @@ export default function Overlay() {
               fontSize={16}
               textDistance={60}
               spinDuration={0.5}
-              startingOptionIndex={0}
               perpendicularText={false}
               pointerProps={{
-                style: { display: 'none' }
+                style: { display: "none" },
               }}
               onStopSpinning={() => {
                 setMustSpin(false);
