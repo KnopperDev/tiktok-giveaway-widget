@@ -184,9 +184,11 @@
 // Wheel pointer/arrow
 .wheel-pointer {
   position: absolute;
-  top: 2.5rem;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 65%;
+  left: 55%;
+  transform: translate(-50%, -50%) rotate(30deg); // Rotate to match default pointer position
+  margin-top: -45%; // Upper area
+  margin-left: 22%; // Right side for 1-2 o'clock position
   font-size: 3rem;
   color: #ffd700;
   filter: drop-shadow(0 4px 12px rgba(255, 215, 0, 0.8));
@@ -196,6 +198,7 @@
     0 0 10px rgba(255, 215, 0, 0.8),
     0 0 20px rgba(255, 215, 0, 0.6),
     0 0 30px rgba(255, 215, 0, 0.4);
+  pointer-events: none; // Allow interaction with wheel below
 }
 
 // Winner announcement
@@ -208,6 +211,7 @@
   backdrop-filter: blur(10px);
   border: 3px solid var(--gold);
   border-radius: 20px;
+  color: #ffd700; // Solid gold color for text
   box-shadow: 
     0 8px 32px rgba(255, 215, 0, 0.4),
     0 0 60px rgba(255, 215, 0, 0.3),
@@ -218,20 +222,21 @@
     winnerEntrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
     winnerGlow 2s ease-in-out infinite,
     float 3s ease-in-out infinite;
-
-  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 25%, #ffd700 50%, #ffed4e 75%, #ffd700 100%);
-  background-size: 300% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: shimmerGold 2s linear infinite, winnerEntrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+  text-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.5),
+    0 0 20px rgba(255, 215, 0, 0.6);
 
   strong {
     display: inline-block;
     font-size: 1.2em;
+    color: #ffd700; // Ensure strong text is also gold
     text-transform: uppercase;
     letter-spacing: 2px;
     animation: pulse 1.5s ease-in-out infinite;
+    text-shadow: 
+      0 2px 4px rgba(0, 0, 0, 0.5),
+      0 0 20px rgba(255, 215, 0, 0.8),
+      0 0 30px rgba(255, 215, 0, 0.6);
   }
 
   // Confetti effect border
@@ -380,10 +385,14 @@
 
 @keyframes pointerBounce {
   0%, 100% {
-    transform: translateX(-50%) translateY(0);
+    transform: translate( 0%, -50%) rotate(40deg);
+    margin-top: -45%;
+    margin-left: 22%;
   }
   50% {
-    transform: translateX(-50%) translateY(10px);
+    transform: translate( -50%, -50%) rotate(40deg);
+    margin-top: -43%;
+    margin-left: 24%;
   }
 }
 
@@ -411,7 +420,7 @@
 
     .wheel-pointer {
       font-size: 2.5rem;
-      top: 1.75rem;
+      // Keep centered positioning on mobile
     }
   }
 
@@ -447,7 +456,7 @@
 
     .wheel-pointer {
       font-size: 2rem;
-      top: 1.25rem;
+      // Keep centered positioning on mobile
     }
   }
 

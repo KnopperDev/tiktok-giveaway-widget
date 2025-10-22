@@ -22,7 +22,7 @@ let currentWinner = null;
 // Configurable entry options
 let giveawayConfig = {
   enabled: { commands: true, gifts: true, likes: true },
-  commands: ["!join", "!giveaway"], // case-insensitive
+  commands: ["!join", "!giveaway", "me", "67"], // case-insensitive
   gifts: ["Rose", "Diamond"], // names of gifts that count
   likeThreshold: 10, // number of likes to enter
 };

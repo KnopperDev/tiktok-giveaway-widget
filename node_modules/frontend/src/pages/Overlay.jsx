@@ -122,6 +122,11 @@ export default function Overlay() {
               fontSize={16}
               textDistance={60}
               spinDuration={0.5}
+              startingOptionIndex={0}
+              perpendicularText={false}
+              pointerProps={{
+                style: { display: 'none' }
+              }}
               onStopSpinning={() => {
                 setMustSpin(false);
                 if (participantsRef.current.length > 0) {
