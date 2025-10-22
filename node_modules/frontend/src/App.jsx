@@ -1,14 +1,15 @@
 import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Overlay from "./pages/Overlay";
 import Dashboard from "./pages/Dashboard";
+import "./App.scss";
 
 function App() {
   return (
     <Router>
-      <div>
-        <nav style={{ padding: "1rem", background: "#222" }}>
-          <Link to="/overlay" style={{ color: "white", marginRight: "1rem" }}>Overlay</Link>
-          <Link to="/dashboard" style={{ color: "white" }}>Dashboard</Link>
+      <div className="app-root">
+        <nav>
+          <Link to="/overlay">Overlay</Link>
+          <Link to="/dashboard">Dashboard</Link>
         </nav>
 
         <Routes>

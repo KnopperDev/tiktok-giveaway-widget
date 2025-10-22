@@ -1,0 +1,458 @@
+// Overlay styles
+.overlay-root {
+  text-align: center;
+  padding: 2rem;
+  color: white;
+  background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+  background-attachment: fixed;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+
+  // Animated background particles
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+      radial-gradient(circle at 20% 50%, rgba(102, 126, 234, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(118, 75, 162, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 40% 20%, rgba(240, 147, 251, 0.1) 0%, transparent 50%);
+    animation: float 20s ease-in-out infinite;
+    pointer-events: none;
+  }
+
+  h1 {
+    margin: 0 0 1rem 0;
+    font-size: 3rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 3s linear infinite, fadeInDown 0.8s ease;
+    letter-spacing: -1px;
+    text-shadow: 0 0 30px rgba(102, 126, 234, 0.5);
+    position: relative;
+    z-index: 1;
+  }
+
+  > p {
+    font-size: 1.25rem;
+    color: var(--text-secondary);
+    margin-bottom: 2rem;
+    font-weight: 500;
+    animation: fadeIn 1s ease 0.3s both;
+    position: relative;
+    z-index: 1;
+    padding: 0.75rem 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+}
+
+// Wheel container
+.overlay-wheel {
+  margin: 2rem auto;
+  max-width: 600px;
+  width: 100%;
+  padding: 3rem;
+  background: var(--card-bg);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    0 0 60px rgba(102, 126, 234, 0.2),
+    inset 0 0 60px rgba(255, 255, 255, 0.02);
+  position: relative;
+  z-index: 1;
+  animation: scaleIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) 0.4s both;
+
+  // Glow effect
+  &::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    background: linear-gradient(135deg, #667eea, #764ba2, #f093fb, #667eea);
+    background-size: 400% 400%;
+    border-radius: 24px;
+    z-index: -1;
+    animation: gradientRotate 8s ease infinite;
+    opacity: 0.5;
+    filter: blur(8px);
+  }
+
+  &:hover {
+    transform: translateY(-4px);
+    box-shadow: 
+      0 12px 48px rgba(0, 0, 0, 0.4),
+      0 0 80px rgba(102, 126, 234, 0.3),
+      inset 0 0 60px rgba(255, 255, 255, 0.03);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+}
+
+// Wheel decorations (emojis around the wheel)
+.wheel-decoration {
+  position: absolute;
+  font-size: 2.5rem;
+  animation: float 3s ease-in-out infinite, rotate 4s linear infinite;
+  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.3));
+  z-index: 10;
+
+  &.top-left {
+    top: 1rem;
+    left: 1rem;
+    animation-delay: 0s;
+  }
+
+  &.top-right {
+    top: 1rem;
+    right: 1rem;
+    animation-delay: 0.5s;
+  }
+
+  &.bottom-left {
+    bottom: 1rem;
+    left: 1rem;
+    animation-delay: 1s;
+  }
+
+  &.bottom-right {
+    bottom: 1rem;
+    right: 1rem;
+    animation-delay: 1.5s;
+  }
+}
+
+// Wheel container wrapper
+.wheel-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  // Add circular glow behind wheel
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 110%;
+    height: 110%;
+    background: radial-gradient(circle, rgba(102, 126, 234, 0.3) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: pulse 3s ease-in-out infinite;
+    z-index: 0;
+  }
+
+  // Wheel wrapper with better styling
+  > div {
+    border-radius: 50%;
+    box-shadow: 
+      0 8px 40px rgba(0, 0, 0, 0.4),
+      0 0 80px rgba(102, 126, 234, 0.4),
+      inset 0 0 20px rgba(255, 255, 255, 0.1);
+    position: relative;
+    z-index: 1;
+    transition: all 0.3s ease;
+
+    &:hover {
+      box-shadow: 
+        0 12px 50px rgba(0, 0, 0, 0.5),
+        0 0 100px rgba(102, 126, 234, 0.6),
+        inset 0 0 30px rgba(255, 255, 255, 0.15);
+    }
+  }
+}
+
+// Wheel pointer/arrow
+.wheel-pointer {
+  position: absolute;
+  top: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 3rem;
+  color: #ffd700;
+  filter: drop-shadow(0 4px 12px rgba(255, 215, 0, 0.8));
+  animation: pointerBounce 1s ease-in-out infinite;
+  z-index: 100;
+  text-shadow: 
+    0 0 10px rgba(255, 215, 0, 0.8),
+    0 0 20px rgba(255, 215, 0, 0.6),
+    0 0 30px rgba(255, 215, 0, 0.4);
+}
+
+// Winner announcement
+.overlay-winner {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-top: 2rem;
+  padding: 2rem 3rem;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.15) 0%, rgba(255, 140, 0, 0.15) 100%);
+  backdrop-filter: blur(10px);
+  border: 3px solid var(--gold);
+  border-radius: 20px;
+  box-shadow: 
+    0 8px 32px rgba(255, 215, 0, 0.4),
+    0 0 60px rgba(255, 215, 0, 0.3),
+    inset 0 0 30px rgba(255, 215, 0, 0.1);
+  position: relative;
+  z-index: 1;
+  animation: 
+    winnerEntrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1),
+    winnerGlow 2s ease-in-out infinite,
+    float 3s ease-in-out infinite;
+
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 25%, #ffd700 50%, #ffed4e 75%, #ffd700 100%);
+  background-size: 300% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmerGold 2s linear infinite, winnerEntrance 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  strong {
+    display: inline-block;
+    font-size: 1.2em;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  // Confetti effect border
+  &::before,
+  &::after {
+    content: '🎉';
+    position: absolute;
+    font-size: 2rem;
+    animation: confetti 3s ease-in-out infinite;
+  }
+
+  &::before {
+    left: -1rem;
+    top: 50%;
+    transform: translateY(-50%) rotate(-15deg);
+  }
+
+  &::after {
+    right: -1rem;
+    top: 50%;
+    transform: translateY(-50%) rotate(15deg);
+    animation-delay: 0.5s;
+  }
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes winnerEntrance {
+  0% {
+    opacity: 0;
+    transform: scale(0.5) rotate(-10deg);
+  }
+  50% {
+    transform: scale(1.1) rotate(5deg);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+}
+
+@keyframes winnerGlow {
+  0%, 100% {
+    box-shadow: 
+      0 8px 32px rgba(255, 215, 0, 0.4),
+      0 0 60px rgba(255, 215, 0, 0.3),
+      inset 0 0 30px rgba(255, 215, 0, 0.1);
+  }
+  50% {
+    box-shadow: 
+      0 8px 40px rgba(255, 215, 0, 0.6),
+      0 0 80px rgba(255, 215, 0, 0.5),
+      inset 0 0 40px rgba(255, 215, 0, 0.2);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position: 200% center;
+  }
+}
+
+@keyframes shimmerGold {
+  to {
+    background-position: 300% center;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes confetti {
+  0%, 100% {
+    transform: translateY(-50%) rotate(-15deg) scale(1);
+  }
+  50% {
+    transform: translateY(-50%) rotate(15deg) scale(1.2);
+  }
+}
+
+@keyframes gradientRotate {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pointerBounce {
+  0%, 100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(10px);
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .overlay-root {
+    padding: 1.5rem;
+
+    h1 {
+      font-size: 2rem;
+    }
+
+    > p {
+      font-size: 1rem;
+    }
+  }
+
+  .overlay-wheel {
+    max-width: 400px;
+    padding: 2rem;
+
+    .wheel-decoration {
+      font-size: 2rem;
+    }
+
+    .wheel-pointer {
+      font-size: 2.5rem;
+      top: 1.75rem;
+    }
+  }
+
+  .overlay-winner {
+    font-size: 1.75rem;
+    padding: 1.5rem 2rem;
+
+    &::before,
+    &::after {
+      font-size: 1.5rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .overlay-wheel {
+    max-width: 320px;
+    padding: 1.5rem;
+
+    .wheel-decoration {
+      font-size: 1.5rem;
+      
+      &.top-left,
+      &.bottom-left {
+        left: 0.5rem;
+      }
+      
+      &.top-right,
+      &.bottom-right {
+        right: 0.5rem;
+      }
+    }
+
+    .wheel-pointer {
+      font-size: 2rem;
+      top: 1.25rem;
+    }
+  }
+
+  .overlay-winner {
+    font-size: 1.5rem;
+    padding: 1.25rem 1.5rem;
+  }
+}

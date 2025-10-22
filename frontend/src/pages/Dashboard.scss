@@ -1,0 +1,347 @@
+// Dashboard styles
+.dashboard {
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  padding: 2.5rem;
+  background: transparent;
+  color: var(--text-primary);
+  min-height: 100vh;
+  max-width: 1400px;
+  margin: 0 auto;
+  animation: fadeIn 0.5s ease;
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.5px;
+  }
+
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1rem;
+    letter-spacing: -0.3px;
+  }
+
+  > p {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 1.5rem;
+    font-weight: 500;
+  }
+}
+
+// Controls section
+.dashboard .controls {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+
+  button {
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+    color: white;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+    
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+      
+      &::before {
+        left: 100%;
+      }
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+      
+      &:hover {
+        transform: none;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+      }
+    }
+
+    &:nth-child(2) {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      box-shadow: 0 4px 15px rgba(245, 87, 108, 0.4);
+      
+      &:hover {
+        box-shadow: 0 6px 20px rgba(245, 87, 108, 0.5);
+      }
+    }
+
+    &:nth-child(3) {
+      background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+      box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+      
+      &:hover {
+        box-shadow: 0 6px 20px rgba(79, 172, 254, 0.5);
+      }
+    }
+  }
+}
+
+// Config section
+.dashboard .config {
+  margin-top: 3rem;
+  padding: 2rem;
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-md);
+  transition: var(--transition);
+
+  &:hover {
+    border-color: rgba(102, 126, 234, 0.3);
+    box-shadow: var(--shadow-lg);
+  }
+
+  > div {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    transition: var(--transition);
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  label {
+    display: inline-flex;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    cursor: pointer;
+    user-select: none;
+    transition: var(--transition);
+
+    &:hover {
+      color: var(--accent-color);
+    }
+
+    input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      margin-right: 0.75rem;
+      cursor: pointer;
+      accent-color: var(--accent-color);
+    }
+  }
+
+  input[type="text"],
+  input[type="number"] {
+    margin-left: 1rem;
+    padding: 0.625rem 1rem;
+    font-size: 0.95rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    color: var(--text-primary);
+    transition: var(--transition);
+    font-family: inherit;
+
+    &:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      background: rgba(255, 255, 255, 0.08);
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    &::placeholder {
+      color: var(--text-secondary);
+    }
+  }
+
+  input[type="text"] {
+    width: 250px;
+  }
+
+  input[type="number"] {
+    width: 80px;
+  }
+}
+
+.mt-8 {
+  margin-top: 8px;
+}
+
+// Participants section
+.dashboard .participants {
+  margin-top: 3rem;
+  padding: 2rem;
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: var(--shadow-md);
+
+  ul {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 0.75rem;
+    max-height: 400px;
+    overflow-y: auto;
+    padding: 0.5rem;
+
+    // Custom scrollbar
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 4px;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: rgba(102, 126, 234, 0.5);
+      border-radius: 4px;
+      
+      &:hover {
+        background: rgba(102, 126, 234, 0.7);
+      }
+    }
+
+    li {
+      padding: 0.75rem 1rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      font-weight: 500;
+      color: var(--text-primary);
+      transition: var(--transition);
+      animation: slideIn 0.3s ease;
+
+      &:hover {
+        background: rgba(102, 126, 234, 0.1);
+        border-color: var(--accent-color);
+        transform: translateX(4px);
+      }
+    }
+  }
+}
+
+// Winner section
+.dashboard .winner {
+  margin-top: 3rem;
+  padding: 2rem 3rem;
+  font-size: 2rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, rgba(255, 140, 0, 0.1) 100%);
+  border: 2px solid var(--gold);
+  border-radius: 16px;
+  text-align: center;
+  box-shadow: 0 8px 32px rgba(255, 215, 0, 0.3);
+  animation: winnerPulse 2s ease-in-out infinite, slideIn 0.5s ease;
+  
+  background: linear-gradient(135deg, #ffd700 0%, #ffed4e 50%, #ffd700 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 3s linear infinite, winnerPulse 2s ease-in-out infinite;
+}
+
+// Animations
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes winnerPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+@keyframes shimmer {
+  to {
+    background-position: 200% center;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 1.5rem;
+
+    h1 {
+      font-size: 2rem;
+    }
+
+    .controls button {
+      padding: 0.75rem 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    .participants ul {
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    }
+
+    .winner {
+      font-size: 1.5rem;
+      padding: 1.5rem 2rem;
+    }
+  }
+}

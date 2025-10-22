@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useSocket } from "../context/useSocket";
 import { Wheel } from "react-custom-roulette";
+import "./Overlay.scss";
 
 export default function Overlay() {
   const socket = useSocket();
@@ -85,31 +86,57 @@ export default function Overlay() {
       : [{ option: "Waiting for participants..." }];
 
   return (
-    <div style={{ textAlign: "center", padding: 16, color: "white", background: "#000", height: "100vh" }}>
+    <div className="overlay-root">
       <h1>Giveaway Wheel</h1>
       {giveawayActive ? <p>Giveaway is live! Viewers type !join to enter.</p> : <p>Waiting for giveaway to start...</p>}
 
-      <div style={{ margin: "16px auto", width: 400 }}>
-        {wheelData.length > 0 && (
-          <Wheel
-            mustStartSpinning={mustSpin && participants.length > 0}
-            prizeNumber={prizeNumber}
-            data={wheelData}
-            backgroundColors={["#f54291", "#42f554", "#4287f5", "#f5a142", "#b142f5"]}
-            textColors={["#ffffff"]}
-            spinDuration={3} // seconds
-            onStopSpinning={() => {
-              setMustSpin(false);
-              if (participantsRef.current.length > 0) {
-                setWinner(participantsRef.current[prizeNumber]);
-              }
-            }}
-          />
-        )}
+      <div className="overlay-wheel">
+        <div className="wheel-decoration top-left">✨</div>
+        <div className="wheel-decoration top-right">🎊</div>
+        <div className="wheel-decoration bottom-left">🎉</div>
+        <div className="wheel-decoration bottom-right">✨</div>
+
+        <div className="wheel-container">
+          {wheelData.length > 0 && (
+            <Wheel
+              mustStartSpinning={mustSpin && participants.length > 0}
+              prizeNumber={prizeNumber}
+              data={wheelData}
+              backgroundColors={[
+                "#667eea", // Purple-blue
+                "#f093fb", // Pink
+                "#4facfe", // Sky blue
+                "#ffd700", // Gold
+                "#43e97b", // Green
+                "#fa709a", // Rose
+                "#764ba2", // Deep purple
+                "#f5576c", // Coral red
+              ]}
+              textColors={["#ffffff"]}
+              outerBorderColor="#667eea"
+              outerBorderWidth={8}
+              innerBorderColor="#ffffff"
+              innerBorderWidth={4}
+              radiusLineColor="#ffffff"
+              radiusLineWidth={2}
+              fontSize={16}
+              textDistance={60}
+              spinDuration={0.5}
+              onStopSpinning={() => {
+                setMustSpin(false);
+                if (participantsRef.current.length > 0) {
+                  setWinner(participantsRef.current[prizeNumber]);
+                }
+              }}
+            />
+          )}
+        </div>
+
+        <div className="wheel-pointer">▼</div>
       </div>
 
       {winner && (
-        <div style={{ fontSize: 20, color: "gold", marginTop: 12 }}>
+        <div className="overlay-winner">
           Winner: <strong>{winner}</strong>
         </div>
       )}

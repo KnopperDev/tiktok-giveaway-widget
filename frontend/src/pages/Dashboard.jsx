@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useSocket } from "../context/useSocket";
+import "./Dashboard.scss";
 
 export default function Dashboard() {
   const socket = useSocket();
@@ -62,11 +63,11 @@ export default function Dashboard() {
   };
 
   return (
-    <div style={{ fontFamily: "sans-serif", padding: "2rem", background: "#111", color: "#fff", height: "100vh" }}>
+    <div className="dashboard">
       <h1>🎛️ Giveaway Dashboard</h1>
       <p>Status: {active ? "🟢 Active" : "🔴 Inactive"}</p>
 
-      <div style={{ marginTop: "1rem" }}>
+      <div className="controls">
         <button onClick={() => socket.emit("start-giveaway")}>Start Giveaway</button>
         <button onClick={() => socket.emit("draw-winner")} disabled={!active || participants.length === 0}>
           Draw Winner
@@ -75,7 +76,7 @@ export default function Dashboard() {
       </div>
 
       {/* Configurable entry options */}
-      <div style={{ marginTop: "2rem" }}>
+      <div className="config">
         <h2>Entry Options</h2>
 
         <div>
@@ -92,12 +93,11 @@ export default function Dashboard() {
               type="text"
               value={config.commands.join(", ")}
               onChange={(e) => updateConfig({ commands: e.target.value.split(",").map((s) => s.trim()) })}
-              style={{ marginLeft: 10, width: 200 }}
             />
           )}
         </div>
 
-        <div style={{ marginTop: 8 }}>
+        <div className="mt-8">
           <label>
             <input
               type="checkbox"
@@ -111,12 +111,11 @@ export default function Dashboard() {
               type="text"
               value={config.gifts.join(", ")}
               onChange={(e) => updateConfig({ gifts: e.target.value.split(",").map((s) => s.trim()) })}
-              style={{ marginLeft: 10, width: 200 }}
             />
           )}
         </div>
 
-        <div style={{ marginTop: 8 }}>
+        <div className="mt-8">
           <label>
             <input
               type="checkbox"
@@ -131,13 +130,11 @@ export default function Dashboard() {
               value={config.likeThreshold}
               min={1}
               onChange={(e) => updateConfig({ likeThreshold: parseInt(e.target.value) || 1 })}
-              style={{ marginLeft: 10, width: 60 }}
             />
           )}
         </div>
       </div>
-
-      <div style={{ marginTop: "2rem" }}>
+      <div className="participants">
         <h2>Participants ({participants.length})</h2>
         <ul>
           {participants.map((p, i) => (
@@ -147,7 +144,7 @@ export default function Dashboard() {
       </div>
 
       {winner && (
-        <div style={{ marginTop: "2rem", fontSize: "1.5rem", color: "gold" }}>
+        <div className="winner">
           🏆 Winner: {winner}
         </div>
       )}
