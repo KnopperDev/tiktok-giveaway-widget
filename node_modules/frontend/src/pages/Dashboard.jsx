@@ -142,9 +142,9 @@ export default function Dashboard() {
           )}
         </div>
 
-        <div style={{ marginTop: 16 }}>
-          <button onClick={applyConfig}>Save Config</button>
-          <button onClick={cancelEdit} style={{ marginLeft: 8 }}>Cancel</button>
+        <div className="config-actions">
+          <button className="save-btn" onClick={applyConfig}>💾 Save Config</button>
+          <button className="cancel-btn" onClick={cancelEdit}>↩️ Cancel</button>
         </div>
       </div>
       <div className="participants">

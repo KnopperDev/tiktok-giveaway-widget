@@ -201,6 +201,67 @@
   }
 }
 
+// Config action buttons
+.dashboard .config-actions {
+  margin-top: 2rem;
+  display: flex;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+
+  button {
+    padding: 0.875rem 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+    color: white;
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+      transition: left 0.5s;
+    }
+
+    &:hover::before {
+      left: 100%;
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  .save-btn {
+    background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+    box-shadow: 0 4px 15px rgba(72, 187, 120, 0.4);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(72, 187, 120, 0.5);
+    }
+  }
+
+  .cancel-btn {
+    background: linear-gradient(135deg, #718096 0%, #4a5568 100%);
+    box-shadow: 0 4px 15px rgba(113, 128, 150, 0.4);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(113, 128, 150, 0.5);
+    }
+  }
+}
+
 .mt-8 {
   margin-top: 8px;
 }
