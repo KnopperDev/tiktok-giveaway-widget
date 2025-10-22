@@ -17,6 +17,18 @@ server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 // --- GIVEAWAY STATE ---
 let participants = [];
 let giveawayActive = false;
+let currentWinner = null;
+
+// Configurable entry options
+let giveawayConfig = {
+  enabled: { commands: true, gifts: true, likes: true },
+  commands: ["!join", "!giveaway"], // case-insensitive
+  gifts: ["Rose", "Diamond"], // names of gifts that count
+  likeThreshold: 10, // number of likes to enter
+};
+
+// Track likes per user
+let userLikes = {};
 
 // Connect to TikTok
 const tiktokConnection = new WebcastPushConnection(TIKTOK_USERNAME);
@@ -25,46 +37,73 @@ tiktokConnection.connect().then(() => {
 });
 
 // --- LISTEN TO TIKTOK EVENTS ---
-
-// Listen for chat messages
 tiktokConnection.on("chat", (chatData) => {
   const message = chatData.comment.trim().toLowerCase();
+  const user = chatData.uniqueId;
 
-  // Add participant when they type !join
-  if (giveawayActive && message === "!join") {
-    const user = chatData.uniqueId;
-    if (!participants.includes(user)) {
-      participants.push(user);
-      console.log(`🎟️ ${user} joined the giveaway!`);
-      io.emit("participant-joined", user);
+  // Commands entry
+  if (giveawayActive && giveawayConfig.enabled.commands) {
+    if (giveawayConfig.commands.some((cmd) => cmd.toLowerCase() === message)) {
+      if (!participants.includes(user)) {
+        participants.push(user);
+        io.emit("participant-joined", user);
+      }
     }
   }
 
   io.emit("new-chat", chatData);
 });
 
-// Gifts (optional entry method)
 tiktokConnection.on("gift", (giftData) => {
   const user = giftData.uniqueId;
-  if (giveawayActive && giftData.giftName === "Rose") {
-    if (!participants.includes(user)) {
-      participants.push(user);
-      console.log(`🌹 ${user} joined via gift!`);
-      io.emit("participant-joined", user);
+  const giftName = giftData.giftName;
+
+  if (giveawayActive && giveawayConfig.enabled.gifts) {
+    if (giveawayConfig.gifts.includes(giftName)) {
+      if (!participants.includes(user)) {
+        participants.push(user);
+        io.emit("participant-joined", user);
+      }
     }
   }
 
   io.emit("new-gift", giftData);
 });
 
-// --- SOCKET.IO EVENTS (Frontend Controls) ---
+tiktokConnection.on("like", (likeData) => {
+  if (!giveawayActive || !giveawayConfig.enabled.likes) return;
+
+  const user = likeData.uniqueId;
+  const count = likeData.likeCount || 1;
+
+  userLikes[user] = (userLikes[user] || 0) + count;
+
+  if (
+    !participants.includes(user) &&
+    userLikes[user] >= giveawayConfig.likeThreshold
+  ) {
+    participants.push(user);
+    io.emit("participant-joined", user);
+  }
+});
+
+// --- SOCKET.IO EVENTS ---
 io.on("connection", (socket) => {
   console.log("Frontend connected:", socket.id);
 
+  // Send current state on connect
+  socket.emit("giveaway-state", {
+    active: giveawayActive,
+    participants,
+    winner: currentWinner,
+    config: giveawayConfig,
+  });
+
   socket.on("start-giveaway", () => {
     participants = [];
+    userLikes = {};
     giveawayActive = true;
-    console.log("🎉 Giveaway started!");
+    currentWinner = null;
     io.emit("giveaway-started");
   });
 
@@ -72,7 +111,7 @@ io.on("connection", (socket) => {
     if (participants.length === 0) return;
     const winner =
       participants[Math.floor(Math.random() * participants.length)];
-    console.log(`🏆 Winner: ${winner}`);
+    currentWinner = winner;
     giveawayActive = false;
     io.emit("giveaway-winner", winner);
   });
@@ -80,8 +119,24 @@ io.on("connection", (socket) => {
   socket.on("reset-giveaway", () => {
     participants = [];
     giveawayActive = false;
-    console.log("🔄 Giveaway reset");
+    currentWinner = null;
+    userLikes = {};
     io.emit("giveaway-reset");
+  });
+
+  // Allow frontend to update config
+  socket.on("update-config", (newConfig) => {
+    giveawayConfig = { ...giveawayConfig, ...newConfig };
+    io.emit("config-updated", giveawayConfig);
+  });
+
+  socket.on("request-giveaway-state", () => {
+    socket.emit("giveaway-state", {
+      active: giveawayActive,
+      participants,
+      winner: currentWinner,
+      config: giveawayConfig,
+    });
   });
 
   socket.on("disconnect", () =>
