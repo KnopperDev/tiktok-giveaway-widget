@@ -13,6 +13,13 @@ const io = new Server(server, { cors: { origin: "*" } });
 const CONFIG_FILE = path.join(__dirname, "giveaway-config.json");
 const PORT = process.env.PORT || 3001;
 
+const frontendPath = path.join(__dirname, "frontend", "dist");
+app.use(express.static(frontendPath));
+
+app.get("/overlay", (req, res) => {
+  res.sendFile(path.join(frontendPath, "index.html"));
+});
+
 app.get("/", (req, res) => res.send("TikTok Giveaway Backend is running!"));
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
