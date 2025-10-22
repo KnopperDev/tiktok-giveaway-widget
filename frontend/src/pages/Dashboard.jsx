@@ -54,13 +54,21 @@ export default function Dashboard() {
     };
   }, [socket]);
 
+  // Local editing state so we don't immediately push changes until user clicks Save
+  const [editingConfig, setEditingConfig] = useState(config);
+
+  // Sync editingConfig when main config updates from server
+  useEffect(() => setEditingConfig(config), [config]);
+
   if (!socket) return <p>Connecting...</p>;
 
-  const updateConfig = (newConfig) => {
-    const merged = { ...config, ...newConfig };
+  const applyConfig = () => {
+    const merged = { ...config, ...editingConfig };
     setConfig(merged);
     socket.emit("update-giveaway-config", merged);
   };
+
+  const cancelEdit = () => setEditingConfig(config);
 
   return (
     <div className="dashboard">
@@ -83,16 +91,16 @@ export default function Dashboard() {
           <label>
             <input
               type="checkbox"
-              checked={config.enabled.commands}
-              onChange={(e) => updateConfig({ enabled: { ...config.enabled, commands: e.target.checked } })}
+              checked={editingConfig.enabled.commands}
+              onChange={(e) => setEditingConfig({ ...editingConfig, enabled: { ...editingConfig.enabled, commands: e.target.checked } })}
             />{" "}
             Enable Commands
           </label>
-          {config.enabled.commands && (
+          {editingConfig.enabled.commands && (
             <input
               type="text"
-              value={config.commands.join(", ")}
-              onChange={(e) => updateConfig({ commands: e.target.value.split(",").map((s) => s.trim()) })}
+              value={editingConfig.commands.join(", ")}
+              onChange={(e) => setEditingConfig({ ...editingConfig, commands: e.target.value.split(",").map((s) => s.trim()) })}
             />
           )}
         </div>
@@ -101,16 +109,16 @@ export default function Dashboard() {
           <label>
             <input
               type="checkbox"
-              checked={config.enabled.gifts}
-              onChange={(e) => updateConfig({ enabled: { ...config.enabled, gifts: e.target.checked } })}
+              checked={editingConfig.enabled.gifts}
+              onChange={(e) => setEditingConfig({ ...editingConfig, enabled: { ...editingConfig.enabled, gifts: e.target.checked } })}
             />{" "}
             Enable Gifts
           </label>
-          {config.enabled.gifts && (
+          {editingConfig.enabled.gifts && (
             <input
               type="text"
-              value={config.gifts.join(", ")}
-              onChange={(e) => updateConfig({ gifts: e.target.value.split(",").map((s) => s.trim()) })}
+              value={editingConfig.gifts.join(", ")}
+              onChange={(e) => setEditingConfig({ ...editingConfig, gifts: e.target.value.split(",").map((s) => s.trim()) })}
             />
           )}
         </div>
@@ -119,19 +127,24 @@ export default function Dashboard() {
           <label>
             <input
               type="checkbox"
-              checked={config.enabled.likes}
-              onChange={(e) => updateConfig({ enabled: { ...config.enabled, likes: e.target.checked } })}
+              checked={editingConfig.enabled.likes}
+              onChange={(e) => setEditingConfig({ ...editingConfig, enabled: { ...editingConfig.enabled, likes: e.target.checked } })}
             />{" "}
             Enable Likes
           </label>
-          {config.enabled.likes && (
+          {editingConfig.enabled.likes && (
             <input
               type="number"
-              value={config.likeThreshold}
+              value={editingConfig.likeThreshold}
               min={1}
-              onChange={(e) => updateConfig({ likeThreshold: parseInt(e.target.value) || 1 })}
+              onChange={(e) => setEditingConfig({ ...editingConfig, likeThreshold: parseInt(e.target.value) || 1 })}
             />
           )}
+        </div>
+
+        <div style={{ marginTop: 16 }}>
+          <button onClick={applyConfig}>Save Config</button>
+          <button onClick={cancelEdit} style={{ marginLeft: 8 }}>Cancel</button>
         </div>
       </div>
       <div className="participants">

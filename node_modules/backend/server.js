@@ -7,6 +7,10 @@ const { WebcastPushConnection } = require("tiktok-live-connector");
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
+const fs = require("fs");
+const path = require("path");
+
+const CONFIG_FILE = path.join(__dirname, "giveaway-config.json");
 
 const PORT = process.env.PORT || 3001;
 const TIKTOK_USERNAME = process.env.TIKTOK_USERNAME || "YOUR_TIKTOK_USERNAME";
@@ -26,6 +30,18 @@ let giveawayConfig = {
   gifts: ["Rose", "Diamond"], // names of gifts that count
   likeThreshold: 10, // number of likes to enter
 };
+
+// Try to load persisted config from disk if available
+try {
+  if (fs.existsSync(CONFIG_FILE)) {
+    const raw = fs.readFileSync(CONFIG_FILE, "utf8");
+    const parsed = JSON.parse(raw);
+    giveawayConfig = { ...giveawayConfig, ...parsed };
+    console.log("Loaded giveaway config from file.");
+  }
+} catch (err) {
+  console.error("Failed to load giveaway config:", err.message);
+}
 
 // Track likes per user
 let userLikes = {};
@@ -125,8 +141,29 @@ io.on("connection", (socket) => {
   });
 
   // Allow frontend to update config
+  // Old name for compatibility
   socket.on("update-config", (newConfig) => {
     giveawayConfig = { ...giveawayConfig, ...newConfig };
+    // persist
+    try {
+      fs.writeFileSync(CONFIG_FILE, JSON.stringify(giveawayConfig, null, 2));
+    } catch (err) {
+      console.error("Failed to persist giveaway config:", err.message);
+    }
+    io.emit("config-updated", giveawayConfig);
+    io.emit("giveaway-config-updated", giveawayConfig);
+  });
+
+  // Preferred frontend event name used by the app
+  socket.on("update-giveaway-config", (newConfig) => {
+    giveawayConfig = { ...giveawayConfig, ...newConfig };
+    // persist
+    try {
+      fs.writeFileSync(CONFIG_FILE, JSON.stringify(giveawayConfig, null, 2));
+    } catch (err) {
+      console.error("Failed to persist giveaway config:", err.message);
+    }
+    io.emit("giveaway-config-updated", giveawayConfig);
     io.emit("config-updated", giveawayConfig);
   });
 
