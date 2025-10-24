@@ -1,0 +1,19 @@
+{
+  "enabled": {
+    "commands": true,
+    "gifts": true,
+    "likes": true
+  },
+  "commands": [
+    "!join",
+    "!giveaway",
+    "hello",
+    "22",
+    "waza"
+  ],
+  "gifts": [
+    "Rose",
+    "Diamond"
+  ],
+  "likeThreshold": 10
+}
